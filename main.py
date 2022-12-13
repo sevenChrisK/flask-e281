@@ -1,15 +1,4 @@
-import os
+from app import app
 
-os.system("flask run")
-os.system("flask db init")
-os.system("flask db migrate")
-os.system("flask db upgrade")
-
-
-from app import app, db
-from app.models import User
-
-u = User(username='demo', email='demo@example.com')
-u.set_password("demo")
-db.session.add(u)
-db.session.commit()
+if __name__ == '__main__':
+    app.run(debug=True, port=os.getenv("PORT", default=5000))
