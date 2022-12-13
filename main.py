@@ -1,13 +1,15 @@
-from flask import Flask, jsonify
 import os
 
-app = Flask(__name__)
+os.system("flask run")
+os.system("flask db init")
+os.system("flask db migrate")
+os.system("flask db upgrade")
 
 
-@app.route('/')
-def index():
-    return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
+from app import app, db
+from app.models import User
 
-
-if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+u = User(username='demo', email='demo@example.com')
+u.set_password("demo")
+db.session.add(u)
+db.session.commit()
