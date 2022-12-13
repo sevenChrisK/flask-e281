@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+<!--https://gridjs.io/docs/examples/html-cells-->
+{% block content %}
+
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+<div class="container">
+    <div id="table"></div>
+</div>
+      <script>
+            new gridjs.Grid({
+        columns: [
+            {id: 'shift_repr', name: 'Shift', formatter: (cell, row) => gridjs.html(`<a href=${row.cells[7].data}> ${row.cells[2].data} @ ${row.cells[1].data} ${cell}</a>`)},
+            { id: 'business', name: 'Business', formatter: (cell, row) => gridjs.html(`<a href=${row.cells[9].data}>${cell}</a>`)},
+          { id: 'employee', name: 'Employee', formatter: (cell, row) => gridjs.html(`<a href=${row.cells[8].data}>${cell}</a>`)},
+          { id: 'length', name: 'Length (hours)'},
+          { id: 'cost', name: 'Cost (£)'},
+          { id: 'shift_start', name: 'Start time'},
+          { id: 'shift_finish', name: 'Finish time'},
+            {id: 'shift_url', name: 'shift_url', hidden: true},
+            {id: 'employee_url', name: 'employee_url', hidden: true},
+            {id: 'business_url', name: 'business_url', hidden: true}
+
+        ],
+        data: [
+          {% for shift in shifts %}
+            {
+                shift_repr: '{{ moment(shift.start_time).fromNow() }}',
+                  business: '{{ shift.business.name }}',
+              employee: '{{ shift.employee.fullname }}',
+              length: parseFloat('{{ "%.2f"|format(shift.shift_length) }}'),
+              cost: parseFloat('{{ "%.2f"|format(shift.shift_cost) }}'),
+              shift_start: '{{ shift.start_time }}',
+                    shift_finish: '{{ shift.finish_time }}',
+                shift_url: '{{ url_for("shift", shift_id=shift.id) }}',
+                employee_url: '{{ url_for("employee", employee_id=shift.employee.id) }}',
+                business_url: '{{ url_for("business", business_id=shift.business.id) }}'
+            },
+          {% endfor %}
+        ],
+        search: true,
+        sort: true,
+        pagination: true,
+      }).render(document.getElementById('table'));
+      </script>
+
+{% endblock %}
