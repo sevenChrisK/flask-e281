@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, DecimalField, DateTimeField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, InputRequired, Optional
 from wtforms.fields import DateTimeLocalField
-from app.models import User, Employee, Business, Shift
+from app.models import User, Employee, Business, Shift, Role, UserRoles
 
 
 
@@ -103,3 +103,17 @@ class NewWageForm(FlaskForm):
     hourly_rate = DecimalField('Hourly rate', places=2, validators=[DataRequired()])
 
     submit = SubmitField('Add wage')
+
+
+class NewUserRoleForm(FlaskForm):
+    employee_id = SelectField(u'Employee', validators=[DataRequired()], id='employee')
+    role_id = SelectField(u'Role', validators=[DataRequired()], id='role')
+
+    submit = SubmitField('Add user role')
+    def validate_role_id(self, role_id):
+        e = Employee.query.filter_by(id=self.employee_id.data).first()
+        e_roles = [r.id for r in e.roles]
+
+        if role_id in e_roles:
+            raise ValidationError(f"Employee already has {Role.query.filter_by(id=role_id)} role")
+            

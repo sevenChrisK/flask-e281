@@ -4,8 +4,8 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, NewEmployeeForm, NewBusinessForm, NewShiftForm, NewWageForm
-from app.models import User, Employee, Business, Shift, Wage
+from app.forms import LoginForm, RegistrationForm, NewEmployeeForm, NewBusinessForm, NewShiftForm, NewWageForm, NewUserRoleForm
+from app.models import User, Employee, Business, Shift, Wage, Role, UserRoles
 
 @app.context_processor
 def inject_businesses_list():
@@ -13,7 +13,7 @@ def inject_businesses_list():
 
 def role_check(required_role: str):
     current_user_roles = [r.name for r in current_user.roles]
-    if 'Admin' or required_role not in current_user_roles:
+    if 'Admin' and required_role not in current_user_roles:
         abort(401)
 
 @app.route('/')
@@ -122,6 +122,7 @@ def new_shift():
 @app.route('/new_wage/<int:employee_id>', methods=['GET', 'POST'])
 @login_required
 def new_wage(employee_id):
+    role_check('Manager')
     form = NewWageForm()
     e = Employee.query.filter_by(id=employee_id).first()
     form.employee_id.choices = [(e.id, f'{e.firstname} {e.lastname}')]
@@ -173,4 +174,21 @@ def business(business_id):
     shifts = Shift.query.filter_by(business_id=business_id)
 
     return render_template('shifts.html', title='Shifts list', shifts=shifts)
+
+
+@app.route('/new_user_roles', methods=['GET', 'POST'])
+@login_required
+def new_user_roles():
+    role_check('Admin')
+    form = NewUserRoleForm()
+    form.employee_id.choices = [(e.id, f'{e.firstname} {e.lastname}') for e in Employee.query.order_by('firstname')]
+    form.role_id.choices = [(r.id, r.name) for r in Role.query.all()]
+
+    if form.validate_on_submit():
+        user_role = UserRoles(employee_id=form.employee_id.data,
+                      role_id=form.role_id.data)
+        db.session.add(user_role)
+        db.session.commit()
+        flash(f'New user role successfully added!')
+        return redirect(url_for('new_user_roles'))
 
