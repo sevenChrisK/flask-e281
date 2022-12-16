@@ -7,11 +7,14 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, NewEmployeeForm, NewBusinessForm, NewShiftForm, NewWageForm
 from app.models import User, Employee, Business, Shift, Wage
 
-
 @app.context_processor
 def inject_businesses_list():
     return dict(businesses_list=Business.query.all())
 
+def role_check(required_role: str):
+    current_user_roles = [r.name for r in current_user.roles]
+    if 'Admin' or required_role not in current_user_roles:
+        abort(401)
 
 @app.route('/')
 @app.route('/index')
@@ -63,9 +66,7 @@ def register():
 @app.route('/new_employee', methods=['GET', 'POST'])
 @login_required
 def new_employee():
-    current_user_roles = [r.name for r in current_user.roles]
-    if 'Admin' not in current_user_roles:
-        abort(401)
+    role_check('Manager')
 
     form = NewEmployeeForm()
     if form.validate_on_submit():
@@ -88,6 +89,7 @@ def new_employee():
 @app.route('/new_business', methods=['GET', 'POST'])
 @login_required
 def new_business():
+    role_check("Manager")
     form = NewBusinessForm()
     if form.validate_on_submit():
         business = Business(name=form.name.data)
@@ -101,6 +103,7 @@ def new_business():
 @app.route('/new_shift', methods=['GET', 'POST'])
 @login_required
 def new_shift():
+    role_check("Manager")
     form = NewShiftForm()
     form.employee_id.choices = [(e.id, f'{e.firstname} {e.lastname}') for e in Employee.query.order_by('firstname')]
     form.business_id.choices = [(b.id, b.name) for b in Business.query.order_by('name')]
