@@ -11,9 +11,11 @@ from app.models import User, Employee, Business, Shift, Wage, Role, UserRoles
 def inject_businesses_list():
     return dict(businesses_list=Business.query.all())
 
-def role_check(required_role: str = ''):
+def role_check(required_role: str = 'Admin'):
     current_user_roles = [r.name for r in current_user.roles]
-    if 'Admin' and required_role not in current_user_roles:
+    if required_role == 'Admin' and 'Admin' not in current_user_roles:
+        abort(401)
+    if required_role not in current_user_roles and 'Admin' not in current_user_roles:
         abort(401)
 
 @app.route('/')
