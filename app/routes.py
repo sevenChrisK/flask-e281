@@ -11,7 +11,7 @@ from app.models import User, Employee, Business, Shift, Wage, Role, UserRoles
 def inject_businesses_list():
     return dict(businesses_list=Business.query.all())
 
-def role_check(required_role: str):
+def role_check(required_role: str = ''):
     current_user_roles = [r.name for r in current_user.roles]
     if 'Admin' and required_role not in current_user_roles:
         abort(401)
@@ -179,7 +179,7 @@ def business(business_id):
 @app.route('/new_user_roles', methods=['GET', 'POST'])
 @login_required
 def new_user_roles():
-    role_check('Admin')
+    role_check()
     form = NewUserRoleForm()
     form.employee_id.choices = [(e.id, f'{e.firstname} {e.lastname}') for e in Employee.query.order_by('firstname')]
     form.role_id.choices = [(r.id, r.name) for r in Role.query.all()]
