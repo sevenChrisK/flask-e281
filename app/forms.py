@@ -106,14 +106,13 @@ class NewWageForm(FlaskForm):
 
 
 class NewUserRoleForm(FlaskForm):
-    employee_id = SelectField(u'Employee', validators=[DataRequired()], id='employee')
+    user_id = SelectField(u'User', validators=[DataRequired()], id='user')
     role_id = SelectField(u'Role', validators=[DataRequired()], id='role')
 
     submit = SubmitField('Add user role')
     def validate_role_id(self, role_id):
-        e = Employee.query.filter_by(id=self.employee_id.data).first()
-        e_roles = [r.id for r in e.roles]
+        u = User.query.filter_by(id=self.user_id.data).first()
+        u_roles = [r.id for r in u.roles]
 
-        if role_id in e_roles:
-            raise ValidationError(f"Employee already has {Role.query.filter_by(id=role_id)} role")
-            
+        if role_id in u_roles:
+            raise ValidationError(f"User already has {Role.query.filter_by(id=role_id)} role")

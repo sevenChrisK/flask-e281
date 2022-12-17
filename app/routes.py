@@ -183,11 +183,11 @@ def business(business_id):
 def new_user_roles():
     role_check()
     form = NewUserRoleForm()
-    form.employee_id.choices = [(e.id, f'{e.firstname} {e.lastname}') for e in Employee.query.order_by('firstname')]
+    form.user_id.choices = [(u.id, u.usernamename) for u in User.query.order_by('username')]
     form.role_id.choices = [(r.id, r.name) for r in Role.query.all()]
 
     if form.validate_on_submit():
-        user_role = UserRoles(employee_id=form.employee_id.data,
+        user_role = UserRoles(user_id=form.user_id.data,
                       role_id=form.role_id.data)
         db.session.add(user_role)
         db.session.commit()
