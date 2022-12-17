@@ -193,4 +193,7 @@ def new_user_roles():
         db.session.commit()
         flash(f'New user role successfully added!')
         return redirect(url_for('new_user_roles'))
+    
+    return render_template('new_user_role.html', title='New user role', form=form)
+
 
