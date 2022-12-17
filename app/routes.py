@@ -183,7 +183,7 @@ def business(business_id):
 def new_user_roles():
     role_check()
     form = NewUserRoleForm()
-    form.user_id.choices = [(u.id, u.usernamename) for u in User.query.order_by('username')]
+    form.user_id.choices = [(u.id, u.username) for u in User.query.order_by('username')]
     form.role_id.choices = [(r.id, r.name) for r in Role.query.all()]
 
     if form.validate_on_submit():
